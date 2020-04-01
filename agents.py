@@ -2,16 +2,6 @@ from math import inf
 import numpy as np
 import time
 
-def win_eval(board):      # Je réécris la fonction pour éviter une import loop
-  ''' Fonction qui évalue une grille et renvoie : 0 si la partie n'est pas finie, 1 si O gagne, 2 si X gagne ou 3 si match nul '''
-  for x in range(3):
-    if board[x,0] == board[x,1] == board[x,2] != 0: return board[x,0]    # -
-    elif board[0,x] == board[1,x] == board[2,x] != 0: return board[0,x]  # |
-    elif board[0,0] == board[1,1] == board[2,2] != 0: return board[0,0]  # \
-    elif board[0,2] == board[1,1] == board[2,0] != 0: return board[0,2]  # /
-  if np.count_nonzero(board) < 9: return 0  # Pas fini
-  return 3                                  # Match nul
-
 class Human:
   ''' input = current state => update GUI, output = mouse click => move + update GUI'''
   def __init__(self):
