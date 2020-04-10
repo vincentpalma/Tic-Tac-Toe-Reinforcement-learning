@@ -123,9 +123,60 @@ class Minimax:
   def move(self,board,turn):
     return best_move(board,turn)
 
+## Q-learning
+
+def possible_actions(board):
+  return np.argwhere(board == 0)
+
+def find_indice(q_table,state):
+  ''' Trouve l'indice d'un state (valide) dans la q_table '''
+  for i in range(len(q_table)):
+    if str(q_table[i,0]) == str(state):
+      return i
 
 class Q_learning:
   ''' input = current state, output = new move '''
-  def __init__(self,board,q_table):
-    self.board = board
+  def __init__(self, epsilon=0.2, alpha=0.3, gamma=0.9):
+    self.breed = "Qlearner"
+    self.q = None
+    self.epsilon = epsilon # e-greedy chance of random exploration
+    self.alpha = alpha # learning rate
+    self.gamma = gamma # discount factor for future rewards
+
+  def getQ(self, state, move):
+    s = state
+    s[move[0],move[1]] = 2
+    i_s = find_indice(self.q,s)
+    return self.q[i_s,2]
+
+  def move(self, board,turn):
+    self.last_board = board
+    actions = possible_actions(board)
+
+    if np.random.random() < self.epsilon: # explore!
+      self.last_move = np.random.permutation(possible_actions(board))[0]
+      return self.last_move
+
+    qs = [self.getQ(self.last_board, a) for a in actions]
+    maxQ = max(qs)
+
+    if qs.count(maxQ) > 1:
+        # more than 1 best option; choose among them randomly
+        best_options = [i for i in range(len(actions)) if qs[i] == maxQ]
+        i = random.choice(best_options)
+    else:
+        i = qs.index(maxQ)
+
+    self.last_move = actions[i]
+    return actions[i]
+
+  def reward(self, value, board):
+    if self.last_move:
+      self.learn(self.last_board, self.last_move, value, board)
+
+  def learn(self, state, action, reward, result_state):
+      prev = self.getQ(state, action)
+      maxqnew = max([self.getQ(result_state, a) for a in self.possible_actions(state)])
+      self.q[(state, action)] = prev + self.alpha * ((reward + self.gamma*maxqnew) - prev)
+
   pass    # À compléter
