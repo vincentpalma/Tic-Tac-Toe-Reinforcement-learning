@@ -33,6 +33,6 @@ def game(X_player,O_player,show_end_state=True):
     return(win_eval(board))       # La fonction renvoie le résultat
 
 if __name__ == "__main__":
-  X_player = agents.Human()
-  O_player = agents.Minimax()
+  X_player = agents.Q_learning()
+  O_player = agents.Human()
   print(game(X_player,O_player,True))

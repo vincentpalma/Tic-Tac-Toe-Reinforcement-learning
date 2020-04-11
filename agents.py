@@ -1,6 +1,7 @@
 from math import inf
 import numpy as np
 import time
+import random
 
 class Human:
   ''' input = current state => update GUI, output = mouse click => move + update GUI'''
@@ -126,6 +127,64 @@ class Minimax:
 
 class Q_learning:
   ''' input = current state, output = new move '''
-  def __init__(self,board,q_table):
+  def __init__(self,epsilon=0.2, alpha=0.3, gamma=0.9):
+    self.q_table = {}
+    self.epsilon = epsilon    # Exploration vs Exploitation
+    self.alpha = 0.3          # Learning rate
+    self.gamma = 0.9          # Discounting factor
+
+  def encode(self,state):      # Encode array to string
+    s = ''
+    for row in range(3):
+      for col in range(3):
+        s += str(state[row,col])
+    return s
+
+  def decode(self,s):          # Decode string to array
+    return np.array([[int(s[0]),int(s[1]),int(s[2])],[int(s[3]),int(s[4]),int(s[5])],[int(s[6]),int(s[7]),int(s[8])]])
+
+  def possible_actions(self,board):
+    ''' retourne tous les indices de valeur 0 '''
+    return [i for i in range(9) if self.encode(np.array(board))[i]=='0']
+
+  def q(self,state,action):
+    if (self.encode(state),action) not in self.q_table:
+      self.q_table[(self.encode(state),action)] = 1    # On est optimiste pour encourager l'exploration
+    return self.q_table[(self.encode(state),action)]
+
+  def move(self,board,turn):
     self.board = board
-  pass    # À compléter
+    actions = self.possible_actions(board)
+    
+    if np.random.random() < self.epsilon:        # exploration
+      self.last_move = random.choice(actions)
+      self.last_move = (self.last_move//3,self.last_move%3) # on retourne le move sous forme de tuple
+      return self.last_move
+    # else: exploitation
+    q_values = [self.q(self.board, a) for a in actions]
+    
+    if turn == 2:   # Si q_learning joue X
+      max_q = max(q_values)
+    else:           # Si q_learning joue O
+      max_q = min(q_values)
+
+    if q_values.count(max_q) > 1:       # s'il y a plusieurs max_q, choisir aléatoirement
+      best_actions = [i for i in range(len(actions)) if q_values[i] == max_q]
+      i = np.random.permutation(best_actions)[0]
+    else:
+      i = q_values.index(max_q)
+
+    self.last_move = actions[i]
+    self.last_move = random.choice(actions)
+    self.last_move = (self.last_move//3,self.last_move%3)
+    return self.last_move
+
+  def learn(self, S, A, reward, S1):
+    prev = self.q(S, A)
+    maxqnew = max([self.q(S1, A1) for A1 in self.possible_actions(S)])
+    self.q[(S, A)] = prev + self.alpha * ((reward + self.gamma*maxqnew) - prev)
+
+
+# print(Q_learning.encode(np.array([[1,2,0],[0,0,0],[0,0,0]])))
+# print(Q_learning.decode(Q_learning.encode(np.array([[1,2,0],[0,0,0],[0,0,0]]))))
+# print(Q_learning.possible_actions(Q_learning,np.array([[1,2,0],[0,0,0],[0,0,0]])))
