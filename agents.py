@@ -128,7 +128,7 @@ class Minimax:
 class Q_learning:
   ''' input = current state, output = new move '''
   def __init__(self,epsilon=0.2, alpha=0.3, gamma=0.9):
-    self.q_table = {}
+    self.q_table = {('000000002',1):0}
     self.epsilon = epsilon    # Exploration vs Exploitation
     self.alpha = 0.3          # Learning rate
     self.gamma = 0.9          # Discounting factor
@@ -156,10 +156,11 @@ class Q_learning:
     self.board = board
     actions = self.possible_actions(board)
     
-    if np.random.random() < self.epsilon:        # exploration
+    if random.random() < self.epsilon:        # exploration
       self.last_move = random.choice(actions)
       self.last_move = (self.last_move//3,self.last_move%3) # on retourne le move sous forme de tuple
       return self.last_move
+    
     # else: exploitation
     q_values = [self.q(self.board, a) for a in actions]
     
@@ -175,7 +176,6 @@ class Q_learning:
       i = q_values.index(max_q)
 
     self.last_move = actions[i]
-    self.last_move = random.choice(actions)
     self.last_move = (self.last_move//3,self.last_move%3)
     return self.last_move
 
