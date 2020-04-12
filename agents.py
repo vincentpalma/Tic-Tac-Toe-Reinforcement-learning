@@ -181,8 +181,9 @@ class Q_learning:
     self.last_move = actions[i]
     return (self.last_move//3,self.last_move%3)
 
-  def reward(self,board,turn):
-    return score_eval(board,turn)
+  def reward(self,value,board):
+    if np.count_nonzero(board) >= 2:  # Si on est au moins au move n2 pour apprendre (TD)
+      self.learn(self.board, self.last_move, value, board)
 
   def learn(self, S, A, reward, S1):
     prev = self.q(S, A)

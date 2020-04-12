@@ -13,29 +13,34 @@ def train(X_player,O_player,episodes,show_end_state=False):
     turn = 2                      # X est le premier à jouer (règles du jeu)
 
     while win_eval(board) == 0:      
-      if turn == 2: 
-        if X_player.player == 'Q' and np.count_nonzero(board) >= 2: # Si on est au moins au move n2 pour apprendre (TD)
-          X_player.learn(X_player.board,X_player.last_move,rewardX,board)
-        
+      if turn == 2:
         move = X_player.move(board,turn)
         board[move[0],move[1]] = 2
         
         if X_player.player == 'Q':
-          rewardX = X_player.reward(board,2)
-        if O_player.player == 'Q':
-          rewardO = O_player.reward(board,1)
+          if win_eval(board) == 2:
+            X_player.reward(1,board)
+          elif win_eval(board) == 1:
+            X_player.reward(-1,board)
+          elif win_eval(board) == 3:
+            X_player.reward(0.5,board)
+          else:
+            X_player.reward(0,board)
         turn = 1
 
       else:
-        if O_player.player == 'Q' and np.count_nonzero(board) >= 3:
-          O_player.learn(O_player.board,O_player.last_move,rewardO,board)
         move = O_player.move(board,turn)
         board[move[0],move[1]] = 1
 
-        if X_player.player == 'Q':
-          rewardX = X_player.reward(board,2)
         if O_player.player == 'Q':
-          rewardO = O_player.reward(board,1)
+          if win_eval(board) == 2:
+            O_player.reward(-1,board)
+          elif win_eval(board) == 1:
+            O_player.reward(1,board)
+          elif win_eval(board) == 3:
+            O_player.reward(0.5,board)
+          else:
+            O_player.reward(0,board)            
         turn = 2
 
     if show_end_state:            # On montre le résultat en image, obligatoire si il y a un joueur humain
