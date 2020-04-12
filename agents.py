@@ -2,12 +2,14 @@ from math import inf
 import numpy as np
 import time
 import random
+import pickle
 
 class Human:
   ''' input = current state => update GUI, output = mouse click => move + update GUI'''
   def __init__(self):
     import gui           # On importe gui ici seulement car on a pas besoin de pygame si les IAs jouent entre eux
     self.gui = gui.gui() # On initialise le gui ici car move() est la 1ère methode à être appellée
+    self.player = 'Human'
 
   def move(self,board,turn):       # Renvoie sous forme d'un tuple (row,col) le coup du joueur
     self.board = board
@@ -35,6 +37,8 @@ class Human:
 
 class Random:
   ''' input = board, output = random move'''
+  def __init__(self):
+    self.player = 'Random'
 
   def move(self,board,turn):
     self.board = board
@@ -121,14 +125,17 @@ def best_move(board,turn):
 
 class Minimax:
   ''' input = current state, output = new move ''' 
+  def __init__(self):
+    self.player = 'Minimax'
   def move(self,board,turn):
     return best_move(board,turn)
 
 
 class Q_learning:
   ''' input = current state, output = new move '''
-  def __init__(self,epsilon=0.2, alpha=0.3, gamma=0.9):
-    self.q_table = {('000000002',1):0}
+  def __init__(self,q_table={},epsilon=0.2, alpha=0.3, gamma=0.9):
+    self.player = 'Q'
+    self.q_table = q_table
     self.epsilon = epsilon    # Exploration vs Exploitation
     self.alpha = 0.3          # Learning rate
     self.gamma = 0.9          # Discounting factor
@@ -158,16 +165,12 @@ class Q_learning:
     
     if random.random() < self.epsilon:        # exploration
       self.last_move = random.choice(actions)
-      self.last_move = (self.last_move//3,self.last_move%3) # on retourne le move sous forme de tuple
-      return self.last_move
+      return (self.last_move//3,self.last_move%3) # on retourne le move sous forme de tuple
     
     # else: exploitation
     q_values = [self.q(self.board, a) for a in actions]
-    
-    if turn == 2:   # Si q_learning joue X
-      max_q = max(q_values)
-    else:           # Si q_learning joue O
-      max_q = min(q_values)
+
+    max_q = max(q_values)
 
     if q_values.count(max_q) > 1:       # s'il y a plusieurs max_q, choisir aléatoirement
       best_actions = [i for i in range(len(actions)) if q_values[i] == max_q]
@@ -176,13 +179,15 @@ class Q_learning:
       i = q_values.index(max_q)
 
     self.last_move = actions[i]
-    self.last_move = (self.last_move//3,self.last_move%3)
-    return self.last_move
+    return (self.last_move//3,self.last_move%3)
+
+  def reward(self,board,turn):
+    return score_eval(board,turn)
 
   def learn(self, S, A, reward, S1):
     prev = self.q(S, A)
     maxqnew = max([self.q(S1, A1) for A1 in self.possible_actions(S)])
-    self.q[(S, A)] = prev + self.alpha * ((reward + self.gamma*maxqnew) - prev)
+    self.q_table[(self.encode(S), A)] = prev + self.alpha * ((reward + self.gamma*maxqnew) - prev)
 
 
 # print(Q_learning.encode(np.array([[1,2,0],[0,0,0],[0,0,0]])))

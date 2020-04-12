@@ -1,5 +1,6 @@
 import numpy as np
 import agents
+import pickle
 
 def win_eval(board):
   ''' Fonction qui évalue une grille et renvoie : 0 si la partie n'est pas finie, 1 si O gagne, 2 si X gagne ou 3 si match nul '''
@@ -34,5 +35,5 @@ def game(X_player,O_player,show_end_state=True):
 
 if __name__ == "__main__":
   X_player = agents.Human()
-  O_player = agents.Q_learning()
+  O_player = agents.Q_learning(pickle.load(open('q.QTABLE','rb')))
   print(game(X_player,O_player,True))
