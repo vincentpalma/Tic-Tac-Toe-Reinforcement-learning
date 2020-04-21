@@ -19,4 +19,6 @@ if __name__ == "__main__":
   print(game(X_player,O_player,True))
 ```
 ### Q-learning
-Train over 10k iterations to get good results
+Train over 10k iterations to get good results, 200k to get near perfect results.
+
+PS: The code is commented in french.
