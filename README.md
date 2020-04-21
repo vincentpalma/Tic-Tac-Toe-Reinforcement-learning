@@ -1,5 +1,5 @@
 # Tic Tac Toe Reinforcement learning
-
+![Game GUI](https://i.imgur.com/gjPgo0E.png)
 ## Setup
 Install requirements with pip
 
