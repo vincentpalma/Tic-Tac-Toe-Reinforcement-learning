@@ -18,3 +18,5 @@ if __name__ == "__main__":
   O_player = agents.Minimax()
   print(game(X_player,O_player,True))
 ```
+### Q-learning
+Train over 10k iterations to get good results

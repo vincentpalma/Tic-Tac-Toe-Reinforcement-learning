@@ -1,4 +1,7 @@
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
 import agents
 
 def win_eval(board):
@@ -29,10 +32,32 @@ def game(X_player,O_player,show_end_state=True):
 
     if show_end_state:            # On montre le résultat en image, obligatoire si il y a un joueur humain
       agents.Human().show_end_state(board)  
+      agents.Human().show_end_state(np.zeros((3,3),int))  
 
-    return(win_eval(board))       # La fonction renvoie le résultat
+    return(agents.score_eval(board,2))       # La fonction renvoie le résultat
+
+from training import train_as_X 
 
 if __name__ == "__main__":
-  X_player = agents.Human()
-  O_player = agents.Minimax()
-  print(game(X_player,O_player,True))
+
+  Q = train_as_X(agents.Q_learning(),agents.Random(),7000)
+
+  X_player = agents.Q_learning(Q,0)   # Epsilon = 0 pour avoir un joueur parfait
+  O_player = agents.Random()
+
+  results = []
+  for i in range(1000):
+    results.append([i,game(X_player,O_player,False)])
+
+  df = pd.DataFrame(results,columns=['Episode','Result'])
+  exp = df.Result.ewm(span=(1000)//10, adjust=False).mean()
+
+  plt.plot(df.Episode,df.Result, 'ro')
+  plt.plot(df.Episode,exp, label='EMA')
+  plt.xlabel('Episode')
+  plt.ylabel('Result (1= X win/-1= O win)')
+  plt.show()
+
+  O_player = agents.Human()
+  while True:
+    print('Result : ',game(X_player,O_player,True))
