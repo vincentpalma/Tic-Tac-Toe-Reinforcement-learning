@@ -21,4 +21,8 @@ if __name__ == "__main__":
 ### Q-learning
 Train over 10k iterations to get good results, 200k to get near perfect results.
 
+When trained playing 200'000 games as X against random, the Q-learning algorithm achieves 99.99% win-rate , 0.01% draw-rate and 0% lose-rate against the random player.
+
+![Plotted results](https://i.imgur.com/sCIFTEU.png)
+
 PS: The code is commented in french.
