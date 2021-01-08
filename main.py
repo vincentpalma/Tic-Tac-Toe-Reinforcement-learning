@@ -36,7 +36,7 @@ def game(X_player,O_player,show_end_state=True):
 
     return(agents.score_eval(board,2))       # La fonction renvoie le résultat
 
-from training import train_as_X 
+from training import train_as_X, train_as_O
 
 if __name__ == "__main__":
 
